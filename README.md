@@ -1,5 +1,8 @@
 # Assinador PDF Desktop
 
+[![License: MIT](https://img.shields.io/badge/license-MIT-green)](https://opensource.org/licenses/MIT)
+[![Sponsor](https://img.shields.io/badge/Sponsor-%E2%9D%A4-ff69b4?logo=github)](https://github.com/sponsors/antonioaguiar)
+
 A desktop application built with Java and JavaFX for signing PDF documents using digital certificates (ICP-Brasil).
 
 ## Features
