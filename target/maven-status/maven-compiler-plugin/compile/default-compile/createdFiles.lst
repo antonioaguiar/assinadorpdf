@@ -3,7 +3,7 @@ br/gov/iti/assinador/controller/MainController.class
 br/gov/iti/assinador/service/SigningService.class
 br/gov/iti/assinador/model/CertificateInfo.class
 br/gov/iti/assinador/DebugCertificates.class
-br/gov/iti/assinador/TestSignPdf.class
 br/gov/iti/assinador/service/CryptoService.class
+br/gov/iti/assinador/TestSignPdf.class
 br/gov/iti/assinador/MainApp.class
 br/gov/iti/assinador/service/SigningService$1.class
