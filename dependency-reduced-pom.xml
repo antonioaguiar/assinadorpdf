@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
   <modelVersion>4.0.0</modelVersion>
-  <groupId>br.gov.iti.assinador</groupId>
+  <groupId>br.eti.aaguiar.assinador</groupId>
   <artifactId>assinador-pdf</artifactId>
   <name>Assinador PDF</name>
   <version>1.0.0-SNAPSHOT</version>
-  <description>Aplicativo Java Desktop para assinatura digital de PDFs usando ICP-Brasil</description>
+  <description>Aplicativo Java Desktop para assinatura digital de PDFs</description>
   <build>
     <plugins>
       <plugin>
@@ -24,7 +24,7 @@
           <execution>
             <id>default-cli</id>
             <configuration>
-              <mainClass>br.gov.iti.assinador.MainApp</mainClass>
+              <mainClass>br.eti.aaguiar.assinador.MainApp</mainClass>
             </configuration>
           </execution>
         </executions>
@@ -41,7 +41,7 @@
             <configuration>
               <transformers>
                 <transformer>
-                  <mainClass>br.gov.iti.assinador.Main</mainClass>
+                  <mainClass>br.eti.aaguiar.assinador.Main</mainClass>
                 </transformer>
                 <transformer />
               </transformers>

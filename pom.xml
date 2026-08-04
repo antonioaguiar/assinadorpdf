@@ -10,7 +10,7 @@
     <packaging>jar</packaging>
 
     <name>Assinador PDF</name>
-    <description>Aplicativo Java Desktop para assinatura digital de PDFs usando ICP-Brasil</description>
+    <description>Aplicativo Java Desktop para assinatura digital de PDFs</description>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -22,7 +22,7 @@
     </properties>
 
     <dependencies>
-        <!-- JavaFX -->
+        <!-- JavaFX - Default (Platform Specific) -->
         <dependency>
             <groupId>org.openjfx</groupId>
             <artifactId>javafx-controls</artifactId>
@@ -37,6 +37,32 @@
             <groupId>org.openjfx</groupId>
             <artifactId>javafx-swing</artifactId>
             <version>${javafx.version}</version>
+        </dependency>
+
+        <!-- JavaFX - Windows Native Libraries (Para rodar no Windows) -->
+        <dependency>
+            <groupId>org.openjfx</groupId>
+            <artifactId>javafx-controls</artifactId>
+            <version>${javafx.version}</version>
+            <classifier>win</classifier>
+        </dependency>
+        <dependency>
+            <groupId>org.openjfx</groupId>
+            <artifactId>javafx-graphics</artifactId>
+            <version>${javafx.version}</version>
+            <classifier>win</classifier>
+        </dependency>
+        <dependency>
+            <groupId>org.openjfx</groupId>
+            <artifactId>javafx-fxml</artifactId>
+            <version>${javafx.version}</version>
+            <classifier>win</classifier>
+        </dependency>
+        <dependency>
+            <groupId>org.openjfx</groupId>
+            <artifactId>javafx-base</artifactId>
+            <version>${javafx.version}</version>
+            <classifier>win</classifier>
         </dependency>
 
         <!-- Apache PDFBox for PDF signing and rendering -->
