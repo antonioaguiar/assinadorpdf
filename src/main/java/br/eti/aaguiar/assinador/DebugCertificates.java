@@ -1,7 +1,7 @@
-package br.gov.iti.assinador;
+package br.eti.aaguiar.assinador;
 
-import br.gov.iti.assinador.model.CertificateInfo;
-import br.gov.iti.assinador.service.CryptoService;
+import br.eti.aaguiar.assinador.model.CertificateInfo;
+import br.eti.aaguiar.assinador.service.CryptoService;
 
 import java.util.List;
 

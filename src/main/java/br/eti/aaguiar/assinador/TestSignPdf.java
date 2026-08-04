@@ -1,8 +1,8 @@
-package br.gov.iti.assinador;
+package br.eti.aaguiar.assinador;
 
-import br.gov.iti.assinador.model.CertificateInfo;
-import br.gov.iti.assinador.service.CryptoService;
-import br.gov.iti.assinador.service.SigningService;
+import br.eti.aaguiar.assinador.model.CertificateInfo;
+import br.eti.aaguiar.assinador.service.CryptoService;
+import br.eti.aaguiar.assinador.service.SigningService;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.pdmodel.PDPage;
 import org.apache.pdfbox.pdmodel.PDPageContentStream;

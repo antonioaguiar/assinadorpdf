@@ -8,7 +8,7 @@
 <?import javafx.scene.shape.Rectangle?>
 
 <BorderPane xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1"
-            fx:controller="br.gov.iti.assinador.controller.MainController"
+            fx:controller="br.eti.aaguiar.assinador.controller.MainController"
             stylesheets="@style.css" prefWidth="1100.0" prefHeight="780.0">
 
     <!-- TOP HEADER -->

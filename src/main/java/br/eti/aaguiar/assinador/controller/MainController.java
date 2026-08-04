@@ -1,8 +1,8 @@
-package br.gov.iti.assinador.controller;
+package br.eti.aaguiar.assinador.controller;
 
-import br.gov.iti.assinador.model.CertificateInfo;
-import br.gov.iti.assinador.service.CryptoService;
-import br.gov.iti.assinador.service.SigningService;
+import br.eti.aaguiar.assinador.model.CertificateInfo;
+import br.eti.aaguiar.assinador.service.CryptoService;
+import br.eti.aaguiar.assinador.service.SigningService;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.embed.swing.SwingFXUtils;

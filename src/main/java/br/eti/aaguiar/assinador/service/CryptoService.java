@@ -1,6 +1,6 @@
-package br.gov.iti.assinador.service;
+package br.eti.aaguiar.assinador.service;
 
-import br.gov.iti.assinador.model.CertificateInfo;
+import br.eti.aaguiar.assinador.model.CertificateInfo;
 import org.bouncycastle.asn1.ASN1InputStream;
 import org.bouncycastle.asn1.ASN1ObjectIdentifier;
 import org.bouncycastle.asn1.ASN1Primitive;

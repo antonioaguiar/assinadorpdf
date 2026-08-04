@@ -1,4 +1,4 @@
-package br.gov.iti.assinador.model;
+package br.eti.aaguiar.assinador.model;
 
 import java.security.KeyStore;
 import java.security.cert.X509Certificate;

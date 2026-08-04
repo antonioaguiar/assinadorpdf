@@ -1,4 +1,4 @@
-package br.gov.iti.assinador;
+package br.eti.aaguiar.assinador;
 
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;

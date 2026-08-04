@@ -1,4 +1,4 @@
-package br.gov.iti.assinador;
+package br.eti.aaguiar.assinador;
 
 public class Main {
     public static void main(String[] args) {
