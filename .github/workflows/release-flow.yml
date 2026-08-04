@@ -1,0 +1,49 @@
+name: Release Tag
+
+on:
+  push:
+    branches:
+      - "main"
+      - "test-ci"
+
+permissions:
+  contents: write
+
+jobs:
+  publish-tag:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+          cache: maven
+
+      - name: Build JAR with Maven
+        run: mvn -B package --file pom.xml -DskipTests
+
+      - name: Generate version from timestamp
+        id: get_version
+        run: |
+          VERSION="v$(date +%Y%m%d%H%M%S)"
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+
+      - name: Create and push tag
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git tag ${{ steps.get_version.outputs.version }}
+          git push origin ${{ steps.get_version.outputs.version }}
+
+      - name: Create GitHub Release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          RELEASE_JAR="target/assinador-pdf-${{ steps.get_version.outputs.version }}.jar"
+          cp target/assinador-pdf-*-SNAPSHOT.jar "$RELEASE_JAR"
+          gh release create ${{ steps.get_version.outputs.version }} "$RELEASE_JAR" --title "${{ steps.get_version.outputs.version }}" --generate-notes
