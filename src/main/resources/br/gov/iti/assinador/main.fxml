@@ -16,7 +16,7 @@
         <HBox styleClass="header-bar" alignment="CENTER_LEFT" spacing="10">
             <VBox>
                 <Text styleClass="header-title" text="Assinador Digital de PDF" />
-                <Text styleClass="header-subtitle" text="Padrão ICP-Brasil (A1 e A3) - Compatível com macOS &amp; Windows" />
+                <Text styleClass="header-subtitle" text="Padrão ICP-Brasil (A1 e A3) - Compatível com macOS, Linux &amp; Windows" />
             </VBox>
         </HBox>
     </top>
@@ -80,6 +80,16 @@
                         <Label fx:id="lblCertExpiry" text="N/D" styleClass="label-value" />
                     </HBox>
                 </VBox>
+
+                <!-- Nova Seção para Anexar Imagem -->
+                <VBox spacing="8" style="-fx-border-color: #e2e8f0; -fx-border-width: 1 0 0 0; -fx-padding: 10 0 0 0;">
+                    <Label text="Imagem/Logo (Opcional):" styleClass="label-info" style="-fx-font-weight: bold;" />
+                    <HBox spacing="8" alignment="CENTER_LEFT">
+                        <Button text="Selecionar Imagem" styleClass="button-secondary" onAction="#handleSelectImage" />
+                        <Button text="X" styleClass="button-secondary" style="-fx-text-fill: red;" onAction="#handleClearImage" />
+                    </HBox>
+                    <Label fx:id="lblImagePath" text="Nenhuma imagem selecionada" styleClass="label-info" wrapText="true" maxWidth="300" />
+                </VBox>
             </VBox>
 
             <!-- CARD 2: DOCUMENTO PDF -->
@@ -139,16 +149,24 @@
             </HBox>
 
             <!-- Viewer Container -->
-            <ScrollPane VBox.vgrow="ALWAYS" fitToWidth="true" fitToHeight="true" 
+            <ScrollPane VBox.vgrow="ALWAYS" fitToWidth="true" fitToHeight="false" 
                         style="-fx-background: #718096; -fx-border-color: #cbd5e0; -fx-border-radius: 8; -fx-background-radius: 8; -fx-padding: 10;">
                 <Pane fx:id="pdfPane">
                     <ImageView fx:id="pdfImageView" pickOnBounds="true" preserveRatio="true" styleClass="pdf-page-view" 
-                               onMouseClicked="#handlePdfClick" />
+                               onMouseClicked="#handlePdfClick" onMouseDragged="#handlePdfClick" />
                     
-                    <!-- Retângulo que representa o posicionamento visual da assinatura (invisível por padrão) -->
-                    <Rectangle fx:id="signatureRect" width="200.0" height="50.0" 
-                               style="-fx-fill: rgba(72, 187, 120, 0.2); -fx-stroke: #48bb78; -fx-stroke-width: 2; -fx-stroke-dash-array: 5 5;" 
-                               visible="false" managed="false" />
+                    <!-- Container do posicionamento visual da assinatura (invisível por padrão) -->
+                    <StackPane fx:id="signatureBox" visible="false" alignment="CENTER_LEFT" mouseTransparent="true"
+                               style="-fx-background-color: rgba(255, 255, 255, 0.9); -fx-border-color: #e53e3e; -fx-border-width: 2;">
+                        <HBox spacing="8" alignment="CENTER_LEFT" style="-fx-padding: 5;">
+                            <ImageView fx:id="signaturePreviewImage" fitWidth="40" fitHeight="40" preserveRatio="true" managed="false" visible="false"/>
+                            <VBox alignment="CENTER_LEFT" spacing="2">
+                                <Label text="Assinado digitalmente por:" style="-fx-font-size: 10px; -fx-text-fill: #4a5568;" />
+                                <Label fx:id="lblPreviewName" text="NOME DO ASSINANTE" style="-fx-font-size: 11px; -fx-font-weight: bold; -fx-text-fill: #2d3748;" />
+                                <Label fx:id="lblPreviewDoc" text="CPF: 000.000.000-00" style="-fx-font-size: 10px; -fx-text-fill: #4a5568;" />
+                            </VBox>
+                        </HBox>
+                    </StackPane>
                 </Pane>
             </ScrollPane>
         </VBox>

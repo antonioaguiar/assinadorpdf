@@ -108,7 +108,8 @@ public class TestSignPdf {
                     100f, // x
                     200f, // y
                     200f, // width
-                    50f   // height
+                    50f,  // height
+                    null
             );
             System.out.println("   PDF assinado com sucesso: " + signedPdfFile.getAbsolutePath());
 

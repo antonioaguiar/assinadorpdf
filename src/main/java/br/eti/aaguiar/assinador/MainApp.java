@@ -4,6 +4,7 @@ import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.image.Image;
 import javafx.stage.Stage;
 
 import java.io.IOException;
@@ -16,6 +17,7 @@ public class MainApp extends Application {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/br/gov/iti/assinador/main.fxml"));
             Parent root = loader.load();
             
+            primaryStage.getIcons().add(new Image(getClass().getResourceAsStream("/br/gov/iti/assinador/icon.png")));
             primaryStage.setTitle("Assinador Digital PDF - ICP-Brasil");
             primaryStage.setScene(new Scene(root));
             primaryStage.setMinWidth(960);

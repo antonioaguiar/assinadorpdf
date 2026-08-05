@@ -45,7 +45,7 @@ import java.util.List;
 public class SigningService {
 
     public void signPdf(File inputPdf, File outputPdf, CertificateInfo certInfo, 
-                        int pageIndex, float x, float y, float width, float height) throws Exception {
+                        int pageIndex, float x, float y, float width, float height, String imagePath) throws Exception {
         
         try (PDDocument document = Loader.loadPDF(inputPdf)) {
             // 1. Criar dicionário de assinatura
@@ -65,7 +65,7 @@ public class SigningService {
             PDRectangle rect = new PDRectangle(x, y, width, height);
             
             org.apache.pdfbox.pdmodel.interactive.digitalsignature.SignatureOptions options = new org.apache.pdfbox.pdmodel.interactive.digitalsignature.SignatureOptions();
-            try (InputStream templateStream = createVisualSignatureTemplate(document, pageIndex, rect, signature, certInfo)) {
+            try (InputStream templateStream = createVisualSignatureTemplate(document, pageIndex, rect, signature, certInfo, imagePath)) {
                 options.setVisualSignature(templateStream);
                 options.setPage(pageIndex);
 
@@ -125,7 +125,7 @@ public class SigningService {
     }
 
     private InputStream createVisualSignatureTemplate(PDDocument srcDoc, int pageNum, PDRectangle rect, 
-                                                      PDSignature signature, CertificateInfo certInfo) throws IOException {
+                                                      PDSignature signature, CertificateInfo certInfo, String imagePath) throws IOException {
         try (PDDocument doc = new PDDocument()) {
             PDPage page = new PDPage(srcDoc.getPage(pageNum).getMediaBox());
             doc.addPage(page);
@@ -160,25 +160,61 @@ public class SigningService {
                 cs.addRect(0, 0, rect.getWidth(), rect.getHeight());
                 cs.fill();
 
-                cs.setStrokingColor(new Color(200, 200, 200));
-                cs.setLineWidth(1f);
-                cs.addRect(0.5f, 0.5f, rect.getWidth() - 1f, rect.getHeight() - 1f);
-                cs.stroke();
+                float textOffsetX = 6;
+                if (imagePath != null && new File(imagePath).exists()) {
+                    try {
+                        org.apache.pdfbox.pdmodel.graphics.image.PDImageXObject pdImage = org.apache.pdfbox.pdmodel.graphics.image.PDImageXObject.createFromFile(imagePath, doc);
+                        float imgSize = 40f;
+                        float imgY = (rect.getHeight() - imgSize) / 2f;
+                        cs.drawImage(pdImage, 5, imgY, imgSize, imgSize);
+                        textOffsetX = imgSize + 15;
+                    } catch (Exception e) {
+                        System.err.println("Erro ao carregar imagem para a assinatura: " + e.getMessage());
+                    }
+                }
 
                 cs.beginText();
                 cs.setNonStrokingColor(Color.DARK_GRAY);
                 
-                cs.setFont(new PDType1Font(Standard14Fonts.FontName.HELVETICA_BOLD), 7.5f);
-                cs.newLineAtOffset(6, rect.getHeight() - 11);
+                PDType1Font titleFont = new PDType1Font(Standard14Fonts.FontName.HELVETICA_BOLD);
+                cs.setFont(titleFont, 7.5f);
+                cs.newLineAtOffset(textOffsetX, rect.getHeight() - 11);
                 cs.showText("Assinado digitalmente por:");
 
-                cs.setFont(new PDType1Font(Standard14Fonts.FontName.HELVETICA_BOLD), 8.5f);
-                cs.newLineAtOffset(0, -11);
                 String cleanName = sanitizeText(certInfo.getName());
-                cs.showText(cleanName);
+                float maxNameWidth = rect.getWidth() - textOffsetX - 5;
+                float nameFontSize = 7.5f;
+                
+                java.util.List<String> nameLines = new java.util.ArrayList<>();
+                String[] words = cleanName.split(" ");
+                StringBuilder currentLine = new StringBuilder();
+                
+                for (String word : words) {
+                    if (currentLine.length() == 0) {
+                        currentLine.append(word);
+                    } else {
+                        String testLine = currentLine.toString() + " " + word;
+                        float testWidth = titleFont.getStringWidth(testLine) / 1000f * nameFontSize;
+                        if (testWidth > maxNameWidth) {
+                            nameLines.add(currentLine.toString());
+                            currentLine = new StringBuilder(word);
+                        } else {
+                            currentLine.append(" ").append(word);
+                        }
+                    }
+                }
+                if (currentLine.length() > 0) {
+                    nameLines.add(currentLine.toString());
+                }
 
-                cs.setFont(new PDType1Font(Standard14Fonts.FontName.HELVETICA), 7.5f);
-                cs.newLineAtOffset(0, -10);
+                cs.setFont(titleFont, nameFontSize);
+                for (String line : nameLines) {
+                    cs.newLineAtOffset(0, -9.5f);
+                    cs.showText(line);
+                }
+
+                cs.setFont(new PDType1Font(Standard14Fonts.FontName.HELVETICA), 7.0f);
+                cs.newLineAtOffset(0, -9.5f);
                 if (certInfo.isPessoaJuridica()) {
                     cs.showText("CNPJ: " + certInfo.getCnpj());
                 } else {
@@ -186,7 +222,7 @@ public class SigningService {
                     cs.showText("CPF: " + cpf);
                 }
 
-                cs.newLineAtOffset(0, -10);
+                cs.newLineAtOffset(0, -9.5f);
                 cs.showText("Data: " + formattedDate);
 
                 cs.endText();

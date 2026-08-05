@@ -14,7 +14,8 @@ import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
-import javafx.scene.shape.Rectangle;
+import javafx.scene.layout.StackPane;
+import javafx.scene.layout.HBox;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import org.apache.pdfbox.Loader;
@@ -27,6 +28,7 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.text.SimpleDateFormat;
 import java.util.List;
+import java.util.prefs.Preferences;
 
 public class MainController {
 
@@ -47,10 +49,12 @@ public class MainController {
     private int signaturePageIndex = -1;
     private float signaturePdfX = 0f;
     private float signaturePdfY = 0f;
+    private String signatureImagePath = null;
+    private Preferences prefs = Preferences.userNodeForPackage(MainController.class);
 
     // Tamanho padrão da estampa (em pontos PDF)
-    private static final float SIG_WIDTH = 200f;
-    private static final float SIG_HEIGHT = 50f;
+    private static final float SIG_WIDTH = 250f;
+    private static final float SIG_HEIGHT = 70f;
 
     @FXML private ToggleGroup certTypeGroup;
     @FXML private RadioButton rbA3;
@@ -79,11 +83,26 @@ public class MainController {
 
     @FXML private Pane pdfPane;
     @FXML private ImageView pdfImageView;
-    @FXML private Rectangle signatureRect;
+    @FXML private StackPane signatureBox;
+    @FXML private ImageView signaturePreviewImage;
+    @FXML private Label lblPreviewName;
+    @FXML private Label lblPreviewDoc;
+    @FXML private Label lblImagePath;
     @FXML private Label lblStatus;
 
     @FXML
     public void initialize() {
+        // Carregar preferência de imagem
+        signatureImagePath = prefs.get("signatureImagePath", null);
+        if (signatureImagePath != null && new File(signatureImagePath).exists()) {
+            lblImagePath.setText(new File(signatureImagePath).getName());
+            signaturePreviewImage.setImage(new Image("file:" + signatureImagePath));
+            signaturePreviewImage.setVisible(true);
+            signaturePreviewImage.setManaged(true);
+        } else {
+            signatureImagePath = null;
+        }
+
         // Alternar visibilidade de A1 e A3 baseado na seleção
         certTypeGroup.selectedToggleProperty().addListener((observable, oldValue, newValue) -> {
             if (rbA3.isSelected()) {
@@ -201,22 +220,57 @@ public class MainController {
         this.activeCertificate = cert;
         if (cert != null) {
             lblCertName.setText(cert.getName());
+            lblPreviewName.setText(cert.getName()); // Atualiza o preview
+            
             if (cert.isPessoaJuridica()) {
                 lblCpfTitle.setText("CNPJ: ");
                 lblCertCpf.setText(cert.getCnpj());
+                lblPreviewDoc.setText("CNPJ: " + cert.getCnpj());
             } else {
                 lblCpfTitle.setText("CPF: ");
-                lblCertCpf.setText(cert.getCpf() != null ? cert.getCpf() : "Não encontrado");
+                String cpf = cert.getCpf() != null ? cert.getCpf() : "Não encontrado";
+                lblCertCpf.setText(cpf);
+                lblPreviewDoc.setText("CPF: " + cpf);
             }
             SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
             lblCertExpiry.setText(sdf.format(cert.getExpirationDate()));
         } else {
             lblCertName.setText("Nenhum certificado ativo");
+            lblPreviewName.setText("NOME DO ASSINANTE");
             lblCpfTitle.setText("CPF: ");
             lblCertCpf.setText("N/D");
+            lblPreviewDoc.setText("CPF: 000.000.000-00");
             lblCertExpiry.setText("N/D");
         }
         checkSignButtonState();
+    }
+    
+    @FXML
+    void handleSelectImage(ActionEvent event) {
+        FileChooser fileChooser = new FileChooser();
+        fileChooser.setTitle("Selecionar Imagem da Assinatura");
+        fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("Imagens (*.png, *.jpg, *.jpeg)", "*.png", "*.jpg", "*.jpeg"));
+        File file = fileChooser.showOpenDialog(getStage());
+        if (file != null) {
+            signatureImagePath = file.getAbsolutePath();
+            lblImagePath.setText(file.getName());
+            prefs.put("signatureImagePath", signatureImagePath);
+            
+            signaturePreviewImage.setImage(new Image("file:" + signatureImagePath));
+            signaturePreviewImage.setVisible(true);
+            signaturePreviewImage.setManaged(true);
+        }
+    }
+
+    @FXML
+    void handleClearImage(ActionEvent event) {
+        signatureImagePath = null;
+        lblImagePath.setText("Nenhuma imagem selecionada");
+        prefs.remove("signatureImagePath");
+        
+        signaturePreviewImage.setImage(null);
+        signaturePreviewImage.setVisible(false);
+        signaturePreviewImage.setManaged(false);
     }
 
     @FXML
@@ -233,7 +287,7 @@ public class MainController {
             
             // Resetar marcação de assinatura
             signaturePageIndex = -1;
-            signatureRect.setVisible(false);
+            signatureBox.setVisible(false);
             lblSignPage.setText("Nenhuma");
             lblSignX.setText("-");
             lblSignY.setText("-");
@@ -286,9 +340,9 @@ public class MainController {
             // Se a assinatura está nessa página, posiciona o retângulo visual
             if (signaturePageIndex == currentPageIndex) {
                 updateVisualSignatureRect();
-                signatureRect.setVisible(true);
+                signatureBox.setVisible(true);
             } else {
-                signatureRect.setVisible(false);
+                signatureBox.setVisible(false);
             }
         } catch (Exception e) {
             lblStatus.setText("Erro ao renderizar página.");
@@ -346,7 +400,7 @@ public class MainController {
 
         // Atualizar o retângulo na tela
         updateVisualSignatureRect();
-        signatureRect.setVisible(true);
+        signatureBox.setVisible(true);
         
         lblStatus.setText(String.format("Assinatura posicionada em X: %.1f, Y: %.1f", signaturePdfX, signaturePdfY));
         checkSignButtonState();
@@ -364,10 +418,11 @@ public class MainController {
         double rectLeftPixels = (signaturePdfX / pageWidthPoints) * imgWidth;
         double rectTopPixels = (1.0 - (signaturePdfY + SIG_HEIGHT) / pageHeightPoints) * imgHeight;
 
-        signatureRect.setWidth(rectWidthPixels);
-        signatureRect.setHeight(rectHeightPixels);
-        signatureRect.setLayoutX(rectLeftPixels);
-        signatureRect.setLayoutY(rectTopPixels);
+        signatureBox.setPrefWidth(rectWidthPixels);
+        signatureBox.setPrefHeight(rectHeightPixels);
+        signatureBox.resize(rectWidthPixels, rectHeightPixels);
+        signatureBox.setLayoutX(rectLeftPixels);
+        signatureBox.setLayoutY(rectTopPixels);
     }
 
     private void checkSignButtonState() {
@@ -404,7 +459,8 @@ public class MainController {
                             signaturePdfX,
                             signaturePdfY,
                             SIG_WIDTH,
-                            SIG_HEIGHT
+                            SIG_HEIGHT,
+                            signatureImagePath
                     );
                     
                     Platform.runLater(() -> {
